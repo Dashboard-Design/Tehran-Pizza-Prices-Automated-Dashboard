@@ -1,0 +1,47 @@
+[
+  {
+    "name": "پیتزا سیر و استیک مرغ",
+    "price_toman": 798000.0,
+    "product_id": 182690
+  },
+  {
+    "name": "پیتزا سبزیجات",
+    "price_toman": 568000.0,
+    "product_id": 182688
+  },
+  {
+    "name": "پیتزا سیر و استیک گوشت",
+    "price_toman": 1098000.0,
+    "product_id": 182526
+  },
+  {
+    "name": "پیتزا گوشت و قارچ",
+    "price_toman": 858000.0,
+    "product_id": 182108
+  },
+  {
+    "name": "پیتزا رست بیف",
+    "price_toman": 988000.0,
+    "product_id": 182102
+  },
+  {
+    "name": "پیتزا دونر گوشت",
+    "price_toman": 868000.0,
+    "product_id": 182100
+  },
+  {
+    "name": "پیتزا میکس",
+    "price_toman": 698000.0,
+    "product_id": 181948
+  },
+  {
+    "name": "پیتزا چیکن لاورز",
+    "price_toman": 758000.0,
+    "product_id": 181940
+  },
+  {
+    "name": "پیتزا پپرونی",
+    "price_toman": 778000.0,
+    "product_id": 181932
+  }
+]
