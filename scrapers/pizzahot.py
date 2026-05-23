@@ -2,8 +2,8 @@ import requests
 from typing import List, Dict
 
 
-def fetch_meykhosh_menu():
-    url = "https://restaurant.delino.com/restaurant/menu/401c408c-079c-4810-8fce-f0c3028d6763"
+def fetch_pizzahot_menu():
+    url = "https://www.delino.com/restaurant/menu/fcd56b18-04d0-493e-9f59-be0da058acbb?_=1779235996430"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         "Accept": "application/json, text/plain, */*",
@@ -17,15 +17,15 @@ def fetch_meykhosh_menu():
     return resp.json()
 
 
-def extract_single_pizzas(data):
+def extract_30cm_pizzas(data):
     categories = data.get("categories", [])
     target_category = None
     for cat in categories:
-        if cat.get("title") == "پیتزا تک نفره":
+        if cat.get("title") == "پیتزا دو نفره":
             target_category = cat
             break
     if not target_category:
-        raise ValueError("Category 'پیتزا تک نفره' not found")
+        raise ValueError("Category 'پیتز دو نفره' not found")
 
     pizzas = []
     # The food items are inside sub[0].food (as per JSON structure)
@@ -37,13 +37,13 @@ def extract_single_pizzas(data):
             pizzas.append({
                 "name": item.get("title"),
                 "price_toman": item.get("price"),
-                "id": item.get("id")
+                "product_id": item.get("id")
             })
     return pizzas
 
 
 def scrape() -> List[Dict]:
-    data = fetch_meykhosh_menu()
+    data = fetch_pizzahot_menu()
     if not data:
-        raise Exception("Failed to fetch Meykhosh menu after retries")
-    return extract_single_pizzas(data)
+        raise Exception("Failed to fetch Pizzahot menu after retries")
+    return extract_30cm_pizzas(data)

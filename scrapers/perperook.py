@@ -33,5 +33,5 @@ def scrape() -> List[Dict]:
 
     data = fetch_perperok_products()
     if not data:
-        raise Exception("Failed to fetch perperook menu after retries")
+        raise Exception("Failed to fetch Perperook menu after retries")
     return extract_products(data, 2, 26)

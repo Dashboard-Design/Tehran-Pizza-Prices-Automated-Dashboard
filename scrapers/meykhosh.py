@@ -35,10 +35,9 @@ def extract_single_pizzas(data):
         foods = sub_categories[0].get("food", [])
         for item in foods:
             pizzas.append({
-                "title": item.get("title"),
+                "name": item.get("title"),
                 "price_toman": item.get("price"),
-                "id": item.get("id"),
-                "available": item.get("available", False)
+                "id": item.get("id")
             })
     return pizzas
 

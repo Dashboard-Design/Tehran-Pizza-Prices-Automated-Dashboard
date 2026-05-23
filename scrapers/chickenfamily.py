@@ -41,4 +41,5 @@ def scrape() -> List[Dict]:
     data = fetch_chickenfamily_menu()
     if not data:
         raise Exception("Failed to fetch ChickenFamily menu after retries")
+
     return extract_products(data)
