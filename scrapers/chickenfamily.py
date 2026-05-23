@@ -1,8 +1,7 @@
 import requests
-import json
-from pathlib import Path
-from datetime import datetime
-
+import uuid
+import time
+from typing import List, Dict
 
 def fetch_chickenfamily_menu(product_id=182690):
     url = f"https://chickenfamilyco.com/Content/JT/4526/siteProductFeatureproductID_{product_id}.txt"
@@ -37,19 +36,9 @@ def extract_products(data):
     return products
 
 
-def main():
-    data = fetch_chickenfamily_menu(182690)  # or any product ID in that menu
-    products = extract_products(data)
-
-    data_dir = Path("data")
-    data_dir.mkdir(exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_file = data_dir / f"chickenfamily_ItallianPizza_{timestamp}.json"
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(products, f, indent=2, ensure_ascii=False)
-
-    print(f"Saved {len(products)} products to {output_file}")
-
-
-if __name__ == "__main__":
-    main()
+def scrape() -> List[Dict]:
+    """Return list of products with keys: title, price_toman"""
+    data = fetch_chickenfamily_menu()
+    if not data:
+        raise Exception("Failed to fetch ChickenFamily menu after retries")
+    return extract_products(data)

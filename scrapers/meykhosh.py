@@ -1,7 +1,5 @@
 import requests
-import json
-from pathlib import Path
-from datetime import datetime
+from typing import List, Dict
 
 
 def fetch_meykhosh_menu():
@@ -45,23 +43,8 @@ def extract_single_pizzas(data):
     return pizzas
 
 
-def main():
-    # Create data folder if not exists
-    data_dir = Path("data")
-    data_dir.mkdir(exist_ok=True)
-
+def scrape() -> List[Dict]:
     data = fetch_meykhosh_menu()
-
-    pizzas = extract_single_pizzas(data)
-    print(f"Found {len(pizzas)} items in 'پیتزا تک نفره'")
-
-    # Save to JSON file
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_file = data_dir / f"meykhosh_single_pizzas_{timestamp}.json"
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(pizzas, f, indent=2, ensure_ascii=False)
-
-    print(f"Data saved to {output_file}")
-
-if __name__ == "__main__":
-    main()
+    if not data:
+        raise Exception("Failed to fetch Meykhosh menu after retries")
+    return extract_single_pizzas(data)

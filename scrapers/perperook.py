@@ -1,7 +1,5 @@
 import requests
-import json
-from pathlib import Path
-from datetime import datetime
+from typing import List, Dict
 
 
 def fetch_perperok_products():
@@ -31,22 +29,9 @@ def extract_products(data, min_id=2, max_id=26):
             })
     return products
 
-def main():
-    # Create data folder
-    data_dir = Path("data")
-    data_dir.mkdir(exist_ok=True)
+def scrape() -> List[Dict]:
 
     data = fetch_perperok_products()
-
-    products = extract_products(data, 2, 26)
-
-    # Save to JSON file
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_file = data_dir / f"perperok_products_{timestamp}.json"
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(products, f, indent=2, ensure_ascii=False)
-
-    print(f"Data saved to {output_file}")
-
-if __name__ == "__main__":
-    main()
+    if not data:
+        raise Exception("Failed to fetch perperook menu after retries")
+    return extract_products(data, 2, 26)
