@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import List, Dict, Callable
 
 # Import all scrapers (each must have a scrape() function)
-from scrapers import shila, meykhosh, perperook, chickenfamily, sib360, baguette, atawich, khatoonpizza, haida, pizzahot, harmonykitchen, burgerland
+from scrapers import shila, meykhosh, perperook, chickenfamily, sib360, baguette, atawich, khatoonpizza, haida, pizzahot, harmonykitchen, burgerland , crispyland , genaro
 
 # Define restaurants with their scraper module and a display name
 # Add more restaurants here as you complete them
@@ -28,7 +28,9 @@ RESTAURANTS = [
     {"name": "Khatoonpizza", "module": khatoonpizza },
     {"name": "Haida", "module": haida},
     {"name": "Harmonykitchen","module": harmonykitchen},
-    {"name": "Burgerland", "module": burgerland}
+    {"name": "Burgerland", "module": burgerland},
+    {"name": "Crispyland", "module": crispyland},
+    {"name": "Genaro", "module": genaro}
 ]
 
 # ----------------------------------------------------------------------
