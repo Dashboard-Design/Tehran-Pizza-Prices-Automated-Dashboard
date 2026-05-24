@@ -25,7 +25,7 @@ def extract_products(data, min_id=2, max_id=26):
             products.append({
                 "product_id": pid,
                 "name": item.get("productName"),
-                "price_toman": item.get("price")
+                "price_toman": int(item.get("price")) / 10
             })
     return products
 

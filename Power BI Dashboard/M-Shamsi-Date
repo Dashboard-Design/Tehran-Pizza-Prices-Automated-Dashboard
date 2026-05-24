@@ -1,0 +1,62 @@
+<span style="font-size: 8pt;">let DateShamsiandmiladi = (
+  Start.Date as date,
+  optional End.Date as date,
+  optional IncludeJalali2 as logical,
+  optional IncludeJalali3 as logical,
+  optional IncludeJDateKey as logical,
+  optional IncludeJDateKey1 as logical,
+  optional IncludeJYear as logical,
+  optional IncludeJMonthN as logical,
+  optional IncludeJDayN as logical,
+  optional IncludeJDayN1 as logical,
+  optional IncludeJMonthT as logical,
+  optional IncludeJHalfYear as logical,
+  optional IncludeJSeasonT as logical,
+  optional IncludeJDayOfYear as logical,
+  optional IncludeJDayT as logical,
+          optional IncludeYYYYMM as logical,
+          optional IncludeQuarterN as logical,
+          optional IncludeMyear as logical,
+          optional IncludeMmonthN as logical,
+          optional IncludeMmonthT as logical,
+          optional IncludeMdayn as logical,
+          optional IncludeMdayT as logical
+
+) as table => let
+
+  StartDate =  Start.Date,
+  EndDate = if End.Date = null then DateTime.Date(DateTime.LocalNow()) else End.Date,
+  NumberOfDays = Duration.Days( EndDate - StartDate )+1,
+  Dates = List.Dates(StartDate, NumberOfDays, #duration(1,0,0,0)),
+  tablelist = Table.FromList(Dates, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+  DateName = Table.RenameColumns(tablelist,{{"Column1", "Date"}}),
+  DateFormat = Table.TransformColumnTypes(DateName,{{"Date", type date}}),
+  Jalali1 = Table.AddColumn(DateFormat, "jalali", each Date.ToText([Date], "yyyy-MM-dd", "fa-IR")),
+  Jalali2 = if IncludeJalali2 <> false then Table.AddColumn(Jalali1, "jalali2", each Date.ToText([Date], "yyyy/MM/dd", "fa-IR")) else Jalali1,
+  Jalali3 = if IncludeJalali3 <> false then Table.AddColumn(Jalali2, "jalali3", each Date.ToText([Date], "yyyy/M/d", "fa-IR")) else Jalali2,
+  jdatekey = if IncludeJDateKey <> false then Table.AddColumn(Jalali3,"jdatekey", each Text.Remove([jalali], {"-"})) else Jalali3,
+  jdatekey1 = if IncludeJDateKey1 <> false then Table.TransformColumnTypes(jdatekey,{{"jdatekey", Int64.Type}}) else jdatekey,
+  jyear = if IncludeJYear <> false then Table.AddColumn(jdatekey1, "jyear", each Number.FromText(Text.Start([jalali],4)), Int64.Type) else jdatekey1,
+  jmonthN = if IncludeJMonthN <> false then Table.AddColumn(jyear, "jmonthN", each Number.FromText(Text.End(Text.Start([jalali],7),2)),Int64.Type) else jyear,
+  jdayn = if IncludeJDayN <> false then Table.AddColumn(jmonthN, "jdayn", each Text.End([jalali],2)) else jmonthN,
+  jdayn1 = if IncludeJDayN1 <> false then Table.TransformColumnTypes(jdayn,{{"jdayn", Int64.Type}}) else jdayn,
+  jmonthT = if IncludeJMonthT <> false then Table.AddColumn(jdayn1, "jmonthT", each Date.ToText([Date],"MMMM","fa-IR"), type text) else jdayn1,
+  jHalfYear = if IncludeJHalfYear <> false then Table.AddColumn(jmonthT, "jHalfYear", each if [jmonthN]<=6 then "نیم سال اول" else "نیم سال دوم", type text) else jmonthT,
+  jseasonT = if IncludeJSeasonT <> false then Table.AddColumn(jHalfYear, "jseasonT", each if List.Contains({1, 2, 3}, [jmonthN]) then "بهار" else if List.Contains({4, 5, 6}, [jmonthN]) then "تابستان" else if List.Contains({7, 8, 9}, [jmonthN]) then "پاییز" else "زمستان" , type text) else jHalfYear,
+  JDayofYear = if IncludeJDayOfYear <> false then Table.AddColumn(jseasonT, "JDayofYear", each if Date.DayOfYear([Date])>=80 then Date.DayOfYear([Date])-79 else Date.DayOfYear([Date])+286,Int64.Type) else jseasonT,
+  jdayT = if IncludeJDayT <> false then Table.AddColumn(JDayofYear, "jdayT", each Date.ToText([Date],"dddd","fa-IR"), type text) else JDayofYear,
+          YYYYMM = if IncludeYYYYMM <> false then Table.AddColumn(jdayT, "YYYY-MM", each Text.BeforeDelimiter([jalali], "-", 1), type text) else jdayT,
+  QuarterN = if IncludeQuarterN <> false then Table.AddColumn(YYYYMM, "QuarterN", each if List.Contains({1, 2, 3}, [jmonthN]) then 1 else if List.Contains({4, 5, 6}, [jmonthN]) then 2 else if List.Contains({7, 8, 9}, [jmonthN]) then 3 else 4,Int64.Type ) else YYYYMM,
+  Myear = if IncludeMyear <> false then Table.AddColumn(QuarterN, "Myear", each Date.Year([Date]), Int64.Type) else QuarterN,
+  MmonthN = if IncludeMmonthN <> false then Table.AddColumn(Myear, "MmonthN", each Date.Month([Date]), Int64.Type) else Myear,
+  MmonthT = if IncludeMmonthT <> false then Table.AddColumn(MmonthN, "MmonthT", each Date.ToText([Date],"MMMM"), type text) else MmonthN,
+  Mdayn = if IncludeMdayn <> false then Table.AddColumn(MmonthT, "Mdayn", each Date.DayOfWeek([Date]), Int64.Type) else MmonthT,
+  MdayT = if IncludeMdayT <> false then Table.AddColumn(Mdayn, "MdayT", each Date.ToText([Date],"dddd"), type text) else Mdayn
+in
+  MdayT,
+
+Documentation = [
+  Documentation.Name =  "DimDate Shamsi and miladi"
+]
+in
+  Value.ReplaceType(DateShamsiandmiladi, Value.ReplaceMetadata(Value.Type(DateShamsiandmiladi), Documentation))</span>

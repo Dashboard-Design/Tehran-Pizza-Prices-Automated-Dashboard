@@ -12,21 +12,23 @@ from datetime import datetime
 from typing import List, Dict, Callable
 
 # Import all scrapers (each must have a scrape() function)
-from scrapers import shila, meykhosh, perperook, chickenfamily, sib360, baguette, atawich, khatoonpizza, haida, pizzahot
+from scrapers import shila, meykhosh, perperook, chickenfamily, sib360, baguette, atawich, khatoonpizza, haida, pizzahot, harmonykitchen, burgerland
 
 # Define restaurants with their scraper module and a display name
 # Add more restaurants here as you complete them
 RESTAURANTS = [
-    {"name": "shila", "module": shila},
-    {"name": "meykhosh", "module": meykhosh},
-    {"name": "perperok", "module": perperook},
-    {"name": "chickenfamily", "module": chickenfamily},
-    {"name": "sib360", "module": sib360},
-    {"name": "baguette", "module": baguette},
-    {"name": "atawich", "module": atawich},
-    {"name": "pizzahot", "module": pizzahot},
-    {"name": "khatoonpizza", "module": khatoonpizza },
-    {"name": "haida", "module": haida}
+    {"name": "Shila", "module": shila},
+    {"name": "Meykhosh", "module": meykhosh},
+    {"name": "Perperook", "module": perperook},
+    {"name": "Chickenfamily", "module": chickenfamily},
+    {"name": "Sib360", "module": sib360},
+    {"name": "Baguette", "module": baguette},
+    {"name": "Atawich", "module": atawich},
+    {"name": "Pizzahot", "module": pizzahot},
+    {"name": "Khatoonpizza", "module": khatoonpizza },
+    {"name": "Haida", "module": haida},
+    {"name": "Harmonykitchen","module": harmonykitchen},
+    {"name": "Burgerland", "module": burgerland}
 ]
 
 # ----------------------------------------------------------------------

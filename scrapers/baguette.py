@@ -1,72 +1,56 @@
 import requests
-import re
+import uuid
+import time
 from typing import List, Dict
 
-
-def fetch_baguette_js():
-    url = "https://baguette.ir/static/menu.js?v=1779493637"
+def fetch_menu(retries=3):
+    udid = str(uuid.uuid4())
+    url = f"https://apigw.snappfood.ir/menu-read-model/37jgem?lat=35.774&long=51.418&optionalClient=PWA&client=PWA&deviceType=PWA&appVersion=6.0.0&UDID={udid}&Bonyan=true&X_ABT=%7B%22backend_delivery_fee_feature%22:false,%22backend_commission_sort_feature%22:false,%22backend_sort_home_carousel%22:false,%22backend_sort_food_party%22:false,%22backend_sort_vendor_search%22:false,%22backend_best_offer_badge_on_vendor_card%22:false,%22backend_modified_vps_in_product_search%22:false,%22backend_active_pro_filter_as_default%22:false,%22backend_jimbo_on_card_eta_color%22:false,%22backend_service_fee_feature%22:true,%22backend_food_vendor_list_default_sorting%22:0,%22backend_party_nonfood_feature%22:false,%22backend_group_order%22:true,%22backend_m41_feature%22:false,%22backend_offbox_on_supertype_section%22:false,%22backend_caffe_vendor_list_default_sorting%22:0,%22backend_juice_vendor_list_default_sorting%22:0,%22backend_confectionery_vendor_list_default_sorting%22:0,%22backend_cpc_search_v2_feature%22:false,%22backend_reorder_ux_improvement_feature%22:false,%22backend_order_history_query_feature%22:false,%22backend_ranker_service_feature%22:false%7D"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept": "application/javascript, */*",
-        "Referer": "https://baguette.ir/",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "fa-IR,fa;q=0.9",
+        "Referer": "https://snappfood.ir/",
+        "x-device-type": "PWA",
+        "x-app-version": "6.0.0",
+        "origin": "https://snappfood.ir",
     }
-    resp = requests.get(url, headers=headers)
-    resp.encoding = "utf-8"  # The file is UTF-8; the garbled display earlier was a viewer issue
-    return resp.text
+    session = requests.Session()
+    try:
+        session.get("https://snappfood.ir/", timeout=10)
+    except:
+        pass
+
+    for attempt in range(retries):
+        try:
+            resp = session.get(url, headers=headers, timeout=15)
+            resp.raise_for_status()
+            return resp.json()
+        except Exception as e:
+            print(f"Baguette attempt {attempt + 1} failed: {e}")
+            time.sleep(2 ** attempt)
+    return None
 
 
-def extract_products_by_category(js_text, category_index=0):
-    """
-    Extract all products belonging to a specific category index.
-    Each product block looks like:
-        x=[];
-        x[0]=0;
-        x[1]="product name";
-        x[2]=price;
-        x[3]="description";
-        x[4]="image_url";
-        products.push(x);
-    """
-    # Split the text by "products.push(x);" to get each product block
-    blocks = js_text.split("products.push(x);")
-    products = []
-    for block in blocks:
-        # Find the category assignment
-        cat_match = re.search(r'x\[0\]\s*=\s*(\d+)', block)
-        if not cat_match:
-            continue
-        cat = int(cat_match.group(1))
-        if cat != category_index:
-            continue
-
-        # Find name
-        name_match = re.search(r'x\[1\]\s*=\s*"([^"]*)"', block)
-        # Find price
-        price_match = re.search(r'x\[2\]\s*=\s*(\d+)', block)
-        if name_match and price_match:
-            name = name_match.group(1)
-            price_rials = int(price_match.group(1))
-            price_toman = price_rials // 10  # convert to Tomans
-            products.append({
-                "name": name,
-                "price_toman": price_toman
-            })
-    return products
+def extract_italian_pizzas(data):
+    categories = data.get("data", {}).get("menuCategories", [])
+    target = next((cat for cat in categories if cat.get("title") == "پیتزا با خمیر نازک - یک نفره"), None)
+    if not target:
+        raise ValueError("Category 'پیتزا با خمیر نازک - یک نفره' not found")
+    pizzas = []
+    for product in target.get("products", []):
+        name = product.get("title")
+        variations = product.get("variations", [])
+        if variations:
+            price = variations[0].get("price")
+            pizzas.append({"name": name, "price_toman": price})
+    return pizzas
 
 
-def scrape(category_index=0) -> List[Dict]:
-    js = fetch_baguette_js()
-    products = extract_products_by_category(js, category_index)
-    if not products:
-        # Debug: print available categories
-        print("No products found for category index", category_index)
-        # Optionally list all category indices found
-        cats_found = set()
-        blocks = js.split("products.push(x);")
-        for block in blocks:
-            m = re.search(r'x\[0\]\s*=\s*(\d+)', block)
-            if m:
-                cats_found.add(int(m.group(1)))
-        print("Available category indices in the file:", sorted(cats_found))
-        raise ValueError(f"No products for index {category_index}")
-    return products
+def scrape() -> List[Dict]:
+    """Return list of products with keys: title, price_toman"""
+    data = fetch_menu()
+    if not data:
+        raise Exception("Failed to fetch baguette menu after retries")
+    return extract_italian_pizzas(data)
+
