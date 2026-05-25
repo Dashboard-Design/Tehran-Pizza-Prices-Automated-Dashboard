@@ -45,9 +45,4 @@ def scrape() -> List[Dict]:
     data = fetch_harmonykitchen_menu()
     if not data:
         raise Exception("Failed to fetch HarmonyKitchen menu after retries")
-    print(f"Successfully fetched HarmonyKitchen menu")
-    for i in extract_pizzas(data):
-        print(i)
     return extract_pizzas(data)
-
-scrape()
