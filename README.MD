@@ -7,30 +7,7 @@ Automated monthly scraping of 30‑cm pizza prices from 14 popular fast‑food c
 - **Scrapers** – Each restaurant has a dedicated module using either a hidden API or static HTML parsing. All scrapers use only `requests` and `BeautifulSoup` – no browser automation.
 - **Orchestrator** – `Pizza_Prices_Pipeline.py` runs all scrapers, handles errors, inserts data into SQLite, and exports a combined CSV.
 - **Data storage** – SQLite database (`database/pizza_prices.db`) keeps a historical record. The `data/` folder contains timestamped CSV snapshots.
-- **Automation** – (Optional) Can be scheduled via cron or GitHub Actions (see example workflow in the repo).
-
-## 🗂️ Project Structure
-tehran-pizza-prices/
-├── Pizza_Prices_Pipeline.py # Main orchestrator
-├── requirements.txt
-├── scrapers/ # Individual scrapers
-│ ├── init.py
-│ ├── shila.py
-│ ├── meykhosh.py
-│ ├── perperok.py
-│ ├── chickenfamily.py
-│ ├── sib360.py
-│ ├── baguette.py
-│ ├── atawich.py
-│ ├── crispy.py
-│ ├── gennaro.py
-│ └── ... (additional restaurants)
-├── database/ # SQLite database (auto‑created)
-│ └── pizza_prices.db
-├── data/ # CSV exports (auto‑created)
-│ └── prices_*.csv
-└── README.md
-
+- **Automation** – Automated and cheduled via cron or GitHub Actions.
 
 ## 🚀 Getting Started
 
@@ -50,23 +27,19 @@ python Pizza_Prices_Pipeline.py
 ```
 
 On first run, it will:
+- Create the database/ folder and pizza_prices.db with the required table.
+- Run all 14 scrapers.
+- Insert all products into the database.
+- Export a CSV file with the current snapshot (in data/).
 
-Create the database/ folder and pizza_prices.db with the required table.
-
-Run all 14 scrapers.
-
-Insert all products into the database.
-
-Export a CSV file with the current snapshot (in data/).
-
-
-📊 Database Schema
-Column	Type	Description
-id	INTEGER	Primary key, auto‑increment
-restaurant	TEXT	Restaurant name (English slug)
-product_name	TEXT	Pizza name (Persian)
-price_toman	INTEGER	Price in Iranian Tomans
-collected_at	DATE	ISO date of scraping (YYYY-MM-DD)
+##  📊 Database Schema
+| Column         | Type    | Description                         |
+|----------------|---------|-------------------------------------|
+| `id`           | INTEGER | Primary key, auto‑increment         |
+| `restaurant`   | TEXT    | Restaurant name (English slug)      |
+| `product_name` | TEXT    | Pizza name (Persian)                |
+| `price_toman`  | INTEGER | Price in Iranian Tomans             |
+| `collected_at` | DATE    | ISO date of scraping (YYYY-MM-DD)   |
 
 
 📄 License
